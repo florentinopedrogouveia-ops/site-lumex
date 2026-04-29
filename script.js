@@ -1,119 +1,46 @@
-/**
- * LUMEX Agency - Interactive Elements (SaaS/Orange Edition)
- */
+// ========== NAVBAR SCROLL EFFECT ==========
+const navbar = document.getElementById('navbar');
+window.addEventListener('scroll', () => {
+  navbar.classList.toggle('scrolled', window.scrollY > 60);
+});
 
-document.addEventListener('DOMContentLoaded', () => {
-    
-    // --- 1. Active Navigation State ---
-    const sections = document.querySelectorAll('section');
-    const navLinks = document.querySelectorAll('.nav-links a');
+// ========== HAMBURGER MENU ==========
+const hamburger = document.getElementById('hamburger');
+const navLinks = document.getElementById('navLinks');
 
-    window.addEventListener('scroll', () => {
-        let current = '';
-        sections.forEach(section => {
-            const sectionTop = section.offsetTop;
-            const sectionHeight = section.clientHeight;
-            if (pageYOffset >= (sectionTop - 200)) {
-                current = section.getAttribute('id');
-            }
-        });
+hamburger.addEventListener('click', () => {
+  hamburger.classList.toggle('active');
+  navLinks.classList.toggle('open');
+});
 
-        navLinks.forEach(a => {
-            a.classList.remove('active');
-            if (a.getAttribute('href').includes(current)) {
-                a.classList.add('active');
-            }
-        });
-    });
+// Close menu on link click
+navLinks.querySelectorAll('a').forEach(link => {
+  link.addEventListener('click', () => {
+    hamburger.classList.remove('active');
+    navLinks.classList.remove('open');
+  });
+});
 
-    // --- 2. Advanced Scroll Reveal Animation ---
-    const revealElements = document.querySelectorAll('.reveal');
-
-    const revealOnScroll = () => {
-        const windowHeight = window.innerHeight;
-        const elementVisible = 80;
-
-        revealElements.forEach((element) => {
-            const elementTop = element.getBoundingClientRect().top;
-            if (elementTop < windowHeight - elementVisible) {
-                element.classList.add('active');
-            }
-        });
-    };
-
-    // Initial check and listen for scroll
-    revealOnScroll();
-    window.addEventListener('scroll', revealOnScroll);
-
-    // --- 3. Interactive Mouse Glow on Feature Cards ---
-    const featureCards = document.querySelectorAll('.feature-card');
-    
-    featureCards.forEach(card => {
-        card.addEventListener('mousemove', e => {
-            const rect = card.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-
-            const glow = card.querySelector('.card-glow');
-            if(glow) {
-                // Center the glow exactly on the mouse coordinates
-                glow.style.left = `${x}px`;
-                glow.style.top = `${y}px`;
-                glow.style.transform = 'translate(-50%, -50%)';
-            }
-        });
-
-        card.addEventListener('mouseleave', () => {
-            const glow = card.querySelector('.card-glow');
-            if(glow) {
-                // Return glow to top center smoothly
-                glow.style.left = '50%';
-                glow.style.top = '0';
-            }
-        });
-    });
-
-    // --- 4. 3D Parallax Effect for Hero Visuals ---
-    const heroSection = document.querySelector('.hero');
-    const visuals = document.querySelector('.hero-visuals');
-    
-    if (heroSection && visuals) {
-        heroSection.addEventListener('mousemove', (e) => {
-            const xAxis = (window.innerWidth / 2 - e.pageX) / 25;
-            const yAxis = (window.innerHeight / 2 - e.pageY) / 25;
-            
-            // Move the container slightly
-            visuals.style.transform = `translateY(${yAxis}px) translateX(${xAxis}px)`;
-        });
-
-        heroSection.addEventListener('mouseleave', () => {
-            visuals.style.transition = "transform 0.5s ease";
-            visuals.style.transform = `translateY(0px) translateX(0px)`;
-            
-            setTimeout(() => {
-                visuals.style.transition = "none";
-            }, 500);
-        });
+// ========== REVEAL ON SCROLL ==========
+const revealElements = document.querySelectorAll('.reveal');
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      revealObserver.unobserve(entry.target);
     }
+  });
+}, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
 
-    // --- 5. Smooth Scrolling ---
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
-            e.preventDefault();
-            const targetId = this.getAttribute('href');
-            if(targetId === '#') return;
-            
-            const targetElement = document.querySelector(targetId);
-            if (targetElement) {
-                const headerOffset = 100;
-                const elementPosition = targetElement.getBoundingClientRect().top;
-                const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-  
-                window.scrollTo({
-                    top: offsetPosition,
-                    behavior: "smooth"
-                });
-            }
-        });
-    });
+revealElements.forEach(el => revealObserver.observe(el));
+
+// ========== SMOOTH SCROLL FOR ANCHOR LINKS ==========
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+  anchor.addEventListener('click', function (e) {
+    const target = document.querySelector(this.getAttribute('href'));
+    if (target) {
+      e.preventDefault();
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
 });
